@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { Song } from '@/types';
 import { formatDuration, cn } from '@/lib/utils';
+import { useAuth } from '@/components/AuthContext';
 
 interface MusicPlayerProps {
   currentSong: Song | null;
@@ -17,11 +18,14 @@ interface MusicPlayerProps {
 }
 
 export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProps) {
+  const { user, toggleFavorite } = useAuth();
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+
+  const isFavorited = user?.favorites.includes(currentSong?.id || '');
 
   useEffect(() => {
     if (audioRef.current) {
@@ -51,7 +55,7 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
       animate={{ y: 0, opacity: 1 }}
       className="fixed bottom-0 left-0 right-0 z-50 p-6"
     >
-      <div className="max-w-7xl mx-auto glass rounded-3xl p-4 flex items-center justify-between gap-8 border-t border-white/10">
+      <div className="max-w-7xl mx-auto glass rounded-[2.5rem] p-4 flex items-center justify-between gap-8 border-t border-white/10 backdrop-blur-3xl shadow-2xl">
         <audio
           ref={audioRef}
           src={currentSong.audioUrl}
@@ -67,51 +71,57 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
             animate={{ scale: 1, opacity: 1 }}
             src={currentSong.coverUrl}
             alt={currentSong.title}
-            className="w-14 h-14 rounded-xl object-cover shadow-lg"
+            className="w-14 h-14 rounded-2xl object-cover shadow-2xl border border-white/5"
           />
           <div className="overflow-hidden">
-            <h4 className="font-semibold text-white truncate text-glow">{currentSong.title}</h4>
-            <p className="text-sm text-white/50 truncate">{currentSong.artist}</p>
+            <h4 className="font-bold text-white truncate pr-2">{currentSong.title}</h4>
+            <p className="text-sm text-white/40 truncate">{currentSong.artist}</p>
           </div>
-          <button className="ml-2 hover:text-purple-400 transition-colors">
-            <Heart className="w-5 h-5" />
+          <button 
+            onClick={() => toggleFavorite(currentSong.id || '')}
+            className={cn(
+              "ml-2 transition-all p-2 rounded-xl group",
+              isFavorited ? "text-red-500" : "text-white/20 hover:text-white"
+            )}
+          >
+            <Heart className={cn("w-5 h-5 transition-transform group-active:scale-75", isFavorited && "fill-current")} />
           </button>
         </div>
 
         {/* Controls */}
         <div className="flex flex-col items-center gap-2 flex-1 max-w-xl">
           <div className="flex items-center gap-6">
-            <button className="text-white/40 hover:text-white transition-colors">
-              <Shuffle className="w-5 h-5" />
+            <button className="text-white/20 hover:text-white transition-colors">
+              <Shuffle className="w-4 h-4" />
             </button>
-            <button onClick={onPrevious} className="text-white hover:text-purple-400 transition-colors">
-              <SkipBack className="w-6 h-6 fill-current" />
+            <button onClick={onPrevious} className="text-white/60 hover:text-white transition-colors">
+              <SkipBack className="w-5 h-5 fill-current" />
             </button>
             <button
               onClick={togglePlay}
-              className="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center hover:scale-110 transition-transform shadow-xl shadow-white/10"
+              className="w-12 h-12 rounded-2xl bg-white text-black flex items-center justify-center hover:scale-110 active:scale-95 transition-all shadow-xl shadow-white/10"
             >
-              {isPlaying ? <Pause className="w-6 h-6 fill-current" /> : <Play className="w-6 h-6 fill-current translate-x-0.5" />}
+              {isPlaying ? <Pause className="w-5 h-5 fill-current" /> : <Play className="w-5 h-5 fill-current translate-x-0.5" />}
             </button>
-            <button onClick={onNext} className="text-white hover:text-purple-400 transition-colors">
-              <SkipForward className="w-6 h-6 fill-current" />
+            <button onClick={onNext} className="text-white/60 hover:text-white transition-colors">
+              <SkipForward className="w-5 h-5 fill-current" />
             </button>
-            <button className="text-white/40 hover:text-white transition-colors">
-              <Repeat className="w-5 h-5" />
+            <button className="text-white/20 hover:text-white transition-colors">
+              <Repeat className="w-4 h-4" />
             </button>
           </div>
 
-          <div className="flex items-center gap-3 w-full group">
-            <span className="text-xs text-white/40 w-10 text-right">
+          <div className="flex items-center gap-4 w-full group">
+            <span className="text-[10px] font-black text-white/20 w-10 text-right tabular-nums">
               {formatDuration(audioRef.current?.currentTime || 0)}
             </span>
-            <div className="relative h-1 flex-1 bg-white/10 rounded-full cursor-pointer overflow-hidden">
+            <div className="relative h-1.5 flex-1 bg-white/5 rounded-full cursor-pointer overflow-hidden backdrop-blur-md">
               <motion.div
                 className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
                 style={{ width: `${progress}%` }}
               />
             </div>
-            <span className="text-xs text-white/40 w-10">
+            <span className="text-[10px] font-black text-white/20 w-10 tabular-nums">
               {formatDuration(currentSong.duration)}
             </span>
           </div>
@@ -120,10 +130,10 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
         {/* Volume */}
         <div className="flex items-center gap-4 w-1/4 justify-end">
           <button onClick={() => setIsMuted(!isMuted)}>
-            {isMuted ? <VolumeX className="w-5 h-5 text-white/40" /> : <Volume2 className="w-5 h-5 text-white/40 hover:text-white" />}
+            {isMuted ? <VolumeX className="w-5 h-5 text-red-500/50" /> : <Volume2 className="w-5 h-5 text-white/20 hover:text-white" />}
           </button>
-          <div className="w-24 h-1 bg-white/10 rounded-full relative overflow-hidden group cursor-pointer">
-            <div className="absolute top-0 left-0 h-full bg-white/40 group-hover:bg-purple-500 transition-colors" style={{ width: `${volume * 100}%` }} />
+          <div className="w-24 h-1.5 bg-white/5 rounded-full relative overflow-hidden group cursor-pointer backdrop-blur-md">
+            <div className="absolute top-0 left-0 h-full bg-white/20 group-hover:bg-purple-500 transition-all" style={{ width: `${volume * 100}%` }} />
           </div>
         </div>
       </div>

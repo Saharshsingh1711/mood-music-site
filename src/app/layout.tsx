@@ -12,6 +12,8 @@ export const metadata: Metadata = {
   description: "Find the perfect soundtrack for every moment and mood.",
 };
 
+import { AuthProvider } from "@/components/AuthContext";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -22,7 +24,9 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} font-sans min-h-full bg-[#030014] text-white antialiased selection:bg-purple-500/30`}
       >
-        {children}
+        <AuthProvider>
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

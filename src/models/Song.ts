@@ -29,6 +29,10 @@ const SongSchema = new Schema({
     type: Number,
     required: [true, 'Please provide a duration in seconds.'],
   },
+  playCount: {
+    type: Number,
+    default: 0,
+  },
 }, {
   timestamps: true,
 });
