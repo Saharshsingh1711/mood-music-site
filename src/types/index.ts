@@ -15,3 +15,11 @@ export interface UserProfile {
   name: string;
   favorites: string[]; // IDs of favorite songs
 }
+
+export interface ApiResponse<T> {
+  success: boolean;
+  songs?: T;
+  count?: number;
+  error?: string;
+  message?: string;
+}
