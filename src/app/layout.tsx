@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
-import { ClerkProvider } from "@clerk/nextjs";
 import "./globals.css";
 
 const outfit = Outfit({
@@ -19,14 +18,12 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <ClerkProvider>
-      <html lang="en" className="dark h-full">
-        <body
-          className={`${outfit.variable} font-sans min-h-full bg-[#030014] text-white antialiased selection:bg-purple-500/30`}
-        >
-          {children}
-        </body>
-      </html>
-    </ClerkProvider>
+    <html lang="en" className="dark h-full">
+      <body
+        className={`${outfit.variable} font-sans min-h-full bg-[#030014] text-white antialiased selection:bg-purple-500/30`}
+      >
+        {children}
+      </body>
+    </html>
   );
 }

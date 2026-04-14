@@ -6,7 +6,6 @@ import { Mood, Song } from '@/types';
 import { MOCK_SONGS } from '@/lib/mockData';
 import { MoodPicker } from '@/components/MoodPicker';
 import { MusicPlayer } from '@/components/MusicPlayer';
-import { UserButton } from '@clerk/nextjs';
 import { Search, Music2, TrendingUp, Compass } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -60,13 +59,6 @@ export default function Dashboard() {
           ))}
         </nav>
 
-        <div className="mt-auto">
-          <UserButton appearance={{
-            elements: {
-              userButtonAvatarBox: "w-10 h-10"
-            }
-          }} />
-        </div>
       </aside>
 
       {/* Main Content */}
