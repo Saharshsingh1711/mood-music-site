@@ -25,7 +25,7 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
-  const isFavorited = user?.favorites.includes(currentSong?.id || '');
+  const isFavorited = user?.favorites.includes(currentSong?._id || currentSong?.id || '');
 
   useEffect(() => {
     if (audioRef.current) {
@@ -66,7 +66,7 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
         {/* Song Info */}
         <div className="flex items-center gap-4 w-1/4">
           <motion.img
-            key={currentSong.id}
+            key={currentSong?._id || currentSong?.id}
             initial={{ scale: 0.8, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             src={currentSong.coverUrl}
@@ -78,7 +78,7 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
             <p className="text-sm text-white/40 truncate">{currentSong.artist}</p>
           </div>
           <button 
-            onClick={() => toggleFavorite(currentSong.id || '')}
+            onClick={() => toggleFavorite(currentSong?._id || currentSong?.id || '')}
             className={cn(
               "ml-2 transition-all p-2 rounded-xl group",
               isFavorited ? "text-red-500" : "text-white/20 hover:text-white"

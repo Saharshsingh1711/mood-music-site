@@ -326,10 +326,10 @@ export default function Dashboard() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
               <AnimatePresence mode="popLayout">
                 {songs.map((song, index) => {
-                  const isFavorited = user?.favorites.includes(song.id || '');
+                  const isFavorited = user?.favorites.includes(song._id || song.id || '');
                   return (
                     <motion.div
-                      key={song.id || index}
+                      key={song._id || song.id || index}
                       layout
                       initial={{ opacity: 0, scale: 0.9 }}
                       animate={{ opacity: 1, scale: 1 }}
@@ -337,7 +337,7 @@ export default function Dashboard() {
                       whileHover={{ y: -8 }}
                       className={cn(
                         "glass-dark p-4 rounded-[2rem] border border-white/5 cursor-pointer group transition-all relative",
-                        currentSong?.id === song.id ? "ring-2 ring-purple-500 bg-purple-500/5" : "hover:bg-white/5"
+                        currentSong?._id === song._id ? "ring-2 ring-purple-500 bg-purple-500/5" : "hover:bg-white/5"
                       )}
                     >
                       <div 
@@ -351,7 +351,7 @@ export default function Dashboard() {
                         />
                         <div className={cn(
                           "absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity",
-                          currentSong?.id === song.id && "opacity-100"
+                          currentSong?._id === song._id && "opacity-100"
                         )}>
                           <div className="w-12 h-12 rounded-full bg-purple-500 flex items-center justify-center shadow-xl">
                             <Music2 className="w-6 h-6 text-white animate-pulse" />
@@ -371,7 +371,7 @@ export default function Dashboard() {
                         <button 
                           onClick={(e) => {
                             e.stopPropagation();
-                            toggleFavorite(song.id || '');
+                            toggleFavorite(song._id || song.id || '');
                           }}
                           className={cn(
                             "absolute top-6 right-6 p-2 rounded-xl backdrop-blur-md transition-all z-20",

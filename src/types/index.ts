@@ -2,6 +2,7 @@ export type Mood = 'Chill' | 'Energetic' | 'Focus' | 'Melancholic' | 'Intense';
 
 export interface Song {
   id: string;
+  _id?: string;
   title: string;
   artist: string;
   mood: Mood;
@@ -12,6 +13,7 @@ export interface Song {
 
 export interface UserProfile {
   id: string;
+  _id?: string;
   name: string;
   favorites: string[]; // IDs of favorite songs
 }

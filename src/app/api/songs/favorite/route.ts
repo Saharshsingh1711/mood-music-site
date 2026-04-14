@@ -29,8 +29,8 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'User not found.' }, { status: 404 });
     }
 
-    // Toggle favorite
-    const index = user.favorites.indexOf(songId);
+    // Toggle favorite - safer comparison with toString()
+    const index = user.favorites.findIndex((id: any) => id.toString() === songId);
     if (index === -1) {
       user.favorites.push(songId);
     } else {
