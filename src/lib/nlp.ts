@@ -51,7 +51,7 @@ const NEGATION_WORDS = ['not', 'no', 'never', 'dont', 'don\'t', 'wont', 'won\'t'
  */
 export function detectVibe(text: string): VibeResult {
   const normalized = text.toLowerCase();
-  const words = normalized.match(/\b[\w']+\b/g) || [];
+  const words: string[] = normalized.match(/\b[\w']+\b/g) || [];
   
   let isNegated = false;
   NEGATION_WORDS.forEach(neg => {
