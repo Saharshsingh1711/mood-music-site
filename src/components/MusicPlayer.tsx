@@ -24,6 +24,9 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
   const [volume, setVolume] = useState(0.7);
   const [isMuted, setIsMuted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
+  const progressBarRef = useRef<HTMLDivElement | null>(null);
+  const volumeBarRef = useRef<HTMLDivElement | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
 
   const isFavorited = user?.favorites.includes(currentSong?._id || currentSong?.id || '');
 
@@ -37,12 +40,69 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
     }
   }, [isPlaying, currentSong]);
 
-  const handleTimeUpdate = () => {
+  // Sync volume and mute state with audio element
+  useEffect(() => {
     if (audioRef.current) {
+      audioRef.current.volume = isMuted ? 0 : volume;
+    }
+  }, [volume, isMuted]);
+
+  const handleTimeUpdate = () => {
+    if (audioRef.current && !isDragging) {
       const current = audioRef.current.currentTime;
       const duration = audioRef.current.duration;
-      setProgress((current / duration) * 100);
+      if (duration) setProgress((current / duration) * 100);
     }
+  };
+
+  // Seek to a position on the progress bar
+  const handleSeek = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!audioRef.current || !progressBarRef.current) return;
+    const rect = progressBarRef.current.getBoundingClientRect();
+    const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const percent = clickX / rect.width;
+    const newTime = percent * audioRef.current.duration;
+    audioRef.current.currentTime = newTime;
+    setProgress(percent * 100);
+  };
+
+  // Enable dragging on the progress bar
+  const handleSeekMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    setIsDragging(true);
+    handleSeek(e);
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!audioRef.current || !progressBarRef.current) return;
+      const rect = progressBarRef.current.getBoundingClientRect();
+      const moveX = Math.max(0, Math.min(ev.clientX - rect.left, rect.width));
+      const percent = moveX / rect.width;
+      setProgress(percent * 100);
+    };
+
+    const onMouseUp = (ev: MouseEvent) => {
+      if (audioRef.current && progressBarRef.current) {
+        const rect = progressBarRef.current.getBoundingClientRect();
+        const moveX = Math.max(0, Math.min(ev.clientX - rect.left, rect.width));
+        const percent = moveX / rect.width;
+        audioRef.current.currentTime = percent * audioRef.current.duration;
+      }
+      setIsDragging(false);
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  };
+
+  // Change volume on click
+  const handleVolumeChange = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!volumeBarRef.current) return;
+    const rect = volumeBarRef.current.getBoundingClientRect();
+    const clickX = Math.max(0, Math.min(e.clientX - rect.left, rect.width));
+    const newVolume = clickX / rect.width;
+    setVolume(newVolume);
+    if (isMuted) setIsMuted(false);
   };
 
   const togglePlay = () => setIsPlaying(!isPlaying);
@@ -115,10 +175,19 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
             <span className="text-[10px] font-black text-white/20 w-10 text-right tabular-nums">
               {formatDuration(audioRef.current?.currentTime || 0)}
             </span>
-            <div className="relative h-1.5 flex-1 bg-white/5 rounded-full cursor-pointer overflow-hidden backdrop-blur-md">
-              <motion.div
-                className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full"
+            <div
+              ref={progressBarRef}
+              onMouseDown={handleSeekMouseDown}
+              className="relative h-1.5 flex-1 bg-white/5 rounded-full cursor-pointer overflow-visible backdrop-blur-md group/progress"
+            >
+              <div
+                className="absolute top-0 left-0 h-full bg-gradient-to-r from-purple-500 to-indigo-500 rounded-full transition-[width] duration-75"
                 style={{ width: `${progress}%` }}
+              />
+              {/* Seek thumb */}
+              <div
+                className="absolute top-1/2 -translate-y-1/2 w-3.5 h-3.5 bg-white rounded-full shadow-lg shadow-purple-500/30 opacity-0 group-hover/progress:opacity-100 transition-opacity"
+                style={{ left: `${progress}%`, transform: `translate(-50%, -50%)` }}
               />
             </div>
             <span className="text-[10px] font-black text-white/20 w-10 tabular-nums">
@@ -132,8 +201,12 @@ export function MusicPlayer({ currentSong, onNext, onPrevious }: MusicPlayerProp
           <button onClick={() => setIsMuted(!isMuted)}>
             {isMuted ? <VolumeX className="w-5 h-5 text-red-500/50" /> : <Volume2 className="w-5 h-5 text-white/20 hover:text-white" />}
           </button>
-          <div className="w-24 h-1.5 bg-white/5 rounded-full relative overflow-hidden group cursor-pointer backdrop-blur-md">
-            <div className="absolute top-0 left-0 h-full bg-white/20 group-hover:bg-purple-500 transition-all" style={{ width: `${volume * 100}%` }} />
+          <div
+            ref={volumeBarRef}
+            onClick={handleVolumeChange}
+            className="w-24 h-1.5 bg-white/5 rounded-full relative overflow-hidden group/vol cursor-pointer backdrop-blur-md"
+          >
+            <div className="absolute top-0 left-0 h-full bg-white/20 group-hover/vol:bg-purple-500 transition-all" style={{ width: `${(isMuted ? 0 : volume) * 100}%` }} />
           </div>
         </div>
       </div>

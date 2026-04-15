@@ -56,7 +56,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     const data = await res.json();
     if (data.success) {
       setUser(data.user);
-      router.push('/');
+      router.push('/dashboard');
     } else {
       throw new Error(data.error);
     }

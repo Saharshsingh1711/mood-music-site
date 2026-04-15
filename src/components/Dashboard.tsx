@@ -203,43 +203,54 @@ export default function Dashboard() {
       {/* Main Content */}
       <main className="flex-1 ml-20 lg:ml-64 p-8 pb-32">
         <header className="flex flex-col gap-4 mb-12">
-          <div className="relative w-full max-w-xl group">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-purple-400 transition-colors" />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="How are you feeling? (e.g., 'need some focus', 'ready for gym')"
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all text-sm backdrop-blur-md text-white placeholder:text-white/20"
-            />
-            
-            <AnimatePresence>
-              {isAnalyzing && (
-                <motion.div
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute right-4 top-1/2 -translate-y-1/2"
-                >
-                  <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
-                </motion.div>
-              )}
+          <div className="flex items-center gap-4">
+            <div className="relative flex-1 max-w-xl group">
+              <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/30 group-focus-within:text-purple-400 transition-colors" />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="How are you feeling? (e.g., 'need some focus', 'ready for gym')"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 outline-none focus:border-purple-500/50 focus:bg-white/10 transition-all text-sm backdrop-blur-md text-white placeholder:text-white/20"
+              />
+              
+              <AnimatePresence>
+                {isAnalyzing && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2"
+                  >
+                    <Loader2 className="w-4 h-4 text-purple-400 animate-spin" />
+                  </motion.div>
+                )}
 
-              {nlpMatch && !isAnalyzing && (
-                <motion.button
-                  initial={{ opacity: 0, x: 10 }}
-                  animate={{ opacity: 1, x: 0 }}
-                  exit={{ opacity: 0, x: 10 }}
-                  onClick={applyNlpMatch}
-                  className="absolute right-2 top-2 bottom-2 px-4 glass-dark rounded-xl flex items-center gap-2 text-xs font-bold text-purple-400 hover:text-white transition-all group overflow-hidden"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <Sparkles className="w-3 h-3 relative z-10" />
-                  <span className="relative z-10">Match: {nlpMatch} ({Math.round(nlpConfidence * 100)}%)</span>
-                </motion.button>
-              )}
-            </AnimatePresence>
+                {nlpMatch && !isAnalyzing && (
+                  <motion.button
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0, x: 10 }}
+                    onClick={applyNlpMatch}
+                    className="absolute right-2 top-2 bottom-2 px-4 glass-dark rounded-xl flex items-center gap-2 text-xs font-bold text-purple-400 hover:text-white transition-all group overflow-hidden"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-purple-500/10 to-indigo-500/10 opacity-0 group-hover:opacity-100 transition-opacity" />
+                    <Sparkles className="w-3 h-3 relative z-10" />
+                    <span className="relative z-10">Match: {nlpMatch} ({Math.round(nlpConfidence * 100)}%)</span>
+                  </motion.button>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <button
+              onClick={logout}
+              className="px-6 py-4 bg-white/5 border border-white/10 rounded-2xl flex items-center gap-3 text-sm font-bold text-white/40 hover:text-red-400 hover:border-red-500/30 hover:bg-red-500/10 transition-all"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:block">Sign Out</span>
+            </button>
           </div>
+          
           <div className="flex items-center gap-2 px-1">
             <div className="w-2 h-2 rounded-full bg-green-500 animate-pulse" />
             <span className="text-[10px] text-white/30 font-bold uppercase tracking-widest">Magic Search Active</span>
